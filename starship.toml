@@ -1,3 +1,5 @@
+command_timeout = 5000
+
 format = """
 $username\
 $hostname\
@@ -53,8 +55,9 @@ style = "bright-black"
 disabled = true
 
 [custom.gcloud]
-command = "gcloud config get-value project 2>/dev/null"
+command = "gcloud config get-value project 2>/dev/null | grep -v '^sys-'"
 when = "gcloud auth list --filter=status:ACTIVE --format='value(account)' 2>/dev/null | grep -q ."
 symbol = "⛅️ "
 format = 'on [$symbol$output]($style)'
 style = "bright-yellow"
+ignore_timeout = true
