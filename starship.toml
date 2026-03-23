@@ -7,7 +7,8 @@ $git_state\
 $git_status\
 $line_break\
 $python\
-$character
+${custom.gcloud}\
+$character 
 """
 
 [hostname]
@@ -28,13 +29,13 @@ style = "bright-green"
 [git_status]
 format = "[[($conflicted$untracked$modified$staged$renamed$deleted)](218) ($ahead_behind$stashed)]($style)"
 style = "cyan"
-conflicted = "⦿ "
-untracked = "܊ "
-modified = "⌧ "
-staged = "▶︎ "
-renamed = "⚃ "
-deleted = "␡ "
-stashed = "𖭦 "
+conflicted = " ⦿"
+untracked = " ܊"
+modified = " ⌧"
+staged = " ▶︎"
+renamed = " ⚃"
+deleted = " ␡"
+stashed = " 𖭦"
 
 [git_state]
 format = '\([$state( $progress_current/$progress_total)]($style)\) '
@@ -49,6 +50,11 @@ format = "[$virtualenv]($style) "
 style = "bright-black"
 
 [gcloud]
-symbol = "⛅️"
-format = 'on [$symbol$project]($style)'
+disabled = true
+
+[custom.gcloud]
+command = "gcloud config get-value project 2>/dev/null"
+when = "gcloud auth list --filter=status:ACTIVE --format='value(account)' 2>/dev/null | grep -q ."
+symbol = "⛅️ "
+format = 'on [$symbol$output]($style)'
 style = "bright-yellow"
