@@ -1,0 +1,65 @@
+% git, version control
+
+# undo last commit (keep changes staged)
+git reset --soft HEAD~1
+
+# undo last commit (unstage changes)
+git reset HEAD~1
+
+# delete local branch
+git branch -d <branch>
+
+# push and set upstream
+git push -u origin <branch>
+
+# amend last commit message
+git commit --amend -m "<message>"
+
+# show commits not yet pushed
+git log origin/<branch>..HEAD --oneline
+
+# log with pretty graph
+git log --graph --decorate --all
+
+# log with pretty graph oneliner style
+git log --oneline --decorate --graph
+
+# stash with a name
+git stash push -m "<name>"
+
+# apply specific stash
+git stash apply stash@{<index>}
+
+# adds a remote for a git repository
+git remote add <remote_name> <remote_url>
+
+# renames a remote for a git repository
+git remote rename <old_remote_name> <new_remote_name>
+
+# remove a remote for a git repository
+git remote remove <remote_name>
+
+# pushes committed changes to remote repository
+git push -u <remote_name> <branch_name>
+
+# pushes changes to a remote repository overwriting another branch
+git push <remote_name> <branch>:<branch_to_overwrite>
+
+# displays formatted log of commits for a repo
+git log --all --decorate --oneline --graph
+
+# find branches containing commit
+git branch -a --contains <commit_id>
+
+# re-sign previous commits with a new gpg key
+git rebase <commit> --exec 'git commit --amend --no-edit -S'
+
+# list modified files
+git status --porcelain | awk 'match($1, "M"){print $2}'
+
+# list deleted files
+git status --porcelain | awk 'match($1, "D"){print $2}'
+
+
+$ branch: git branch --format='%(refname:short)' --
+$ index: git stash list | awk -F: '{print $1}' | sed 's/stash@{//' | sed 's/}//' ---

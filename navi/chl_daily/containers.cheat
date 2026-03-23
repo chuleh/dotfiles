@@ -1,0 +1,57 @@
+% docker, containers, kubernetes, k8s
+
+# stop all containers
+docker stop $(docker ps -qa)
+
+# remove all stopped containers
+docker container prune -f $(docker ps -qa)
+
+# remove all images
+docker rmi -f $(docker images -qa)
+
+# exec into running container
+docker exec -it <container> /bin/sh
+
+# show container logs (follow)
+docker logs -f <container>
+
+# inspect container env vars
+docker inspect <container> --format '{{range .config.env}}{{println .}}{{end}}'
+
+# shows docker image layers
+docker history --no-trunc ubuntu:oracular-20240527 | tac | tr -s ' ' | cut -d " " -f 5- | sed 's,^/bin/sh -c #(nop) ,,g' | sed 's,^/bin/sh -c,run,g' | sed 's, && ,\n  & ,g' | sed 's,\s*[0-9]*[\.]*[0-9]*[kmg]*b\s*$,,g' | head -n -1
+
+$ container: docker ps --format '{{.names}}' ---
+
+% kubectl, kubernetes
+
+# get all resources in namespace
+kubectl get all -n <namespace>
+
+# exec into pod
+kubectl exec -it <pod> -n <namespace> -- /bin/sh
+
+# port forward to pod
+kubectl port-forward pod/<pod> <local_port>:<pod_port> -n <namespace>
+
+# show pod logs (follow)
+kubectl logs -f <pod> -n <namespace>
+
+# delete pod (force)
+kubectl delete pod <pod> -n <namespace> --grace-period=0 --force
+
+# get secret value (decoded)
+kubectl get secret <secret> -n <namespace> -o jsonpath='{.data.<key>}' | base64 -d
+
+# describe pod
+kubectl describe pod <pod> -n <namespace>
+
+# watch pods
+kubectl get pods -n <namespace> -w
+
+# get cpu and memory of a node
+kubectl get nodes --context <context> -o="jsonpath={range .items[*]}{.metadata.name}{'\t'}{.status.capacity.cpu}{'\t'}{.status.capacity.memory}{'\n'}{end}"
+
+$ namespace: kubectl get namespaces -o jsonpath='{.items[*].metadata.name}' | tr ' ' '\n' ---
+$ pod: kubectl get pods -n <namespace> -o jsonpath='{.items[*].metadata.name}' | tr ' ' '\n' ---
+$ secret: kubectl get secrets -n <namespace> -o jsonpath='{.items[*].metadata.name}' | tr ' ' '\n' ---

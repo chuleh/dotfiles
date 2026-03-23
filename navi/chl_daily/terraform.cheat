@@ -1,0 +1,21 @@
+% terraform
+
+# init with backend config
+terraform init -backend-config=<config_file>
+
+# plan targeting specific resource
+terraform plan -target=<resource>
+
+# show state for resource
+terraform state show <resource>
+
+# list resources in state
+terraform state list
+
+# taint resource (force recreate)
+terraform taint <resource>
+
+# import existing resource
+terraform import <resource> <id>
+
+$ resource: terraform state list ---

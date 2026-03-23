@@ -1,0 +1,40 @@
+% gcp, gcloud
+
+# GCP login
+gcloud auth login
+
+# Set active project
+gcloud config set project <project>
+
+# Get credentials for GKE cluster
+gcloud container clusters get-credentials <cluster> --zone us-central1-c --project <project>
+
+# SSH into running instance (fuzzy search by name)
+gcloud compute instances list --filter="status=RUNNING" --filter="name ~ .*<name>.*" | fzf --bind "enter:become(gcloud compute ssh --zone={2} --internal-ip --ssh-flag=\"-A\" {1})"
+
+# Describe secret version
+gcloud secrets versions access latest --secret=<secret> --project=<project>
+
+# List secrets
+gcloud secrets list --project=<project>
+
+# Create a new secret version from file
+gcloud secrets versions add <secret> --data-file="<data_file>"
+
+# Create a new secret version from stdin (not recommended)
+ echo -n "<secret_date>" | gcloud secrets versions add <secret> --data-file=-
+
+# Grant access to gcloud secret
+gcloud secrets add-iam-policy-binding <secret> --member="<iam_member>" --role="roles/secretmanager.secretAccessor"
+
+# Add labels to gcloud secret
+gcloud secrets update <secret> --update-labels=<key>=<value>
+
+# List IAM roles (names and description)
+gcloud iam roles list --format json | jq ' .[] | ( .name + "\t" + .description) '
+
+$ project: gcloud projects list --format='value(projectId)' ---
+$ secret: gcloud secrets list --project=<project> --format='value(name)' ---
+$ cluster: gcloud container clusters list --format='value(name)' ---
+$ name: gcloud compute instances list --filter="status=RUNNING" --format='value(name)' ---
+$ zone: gcloud compute zones list --format='value(name)' ---
