@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -c 'if (.tool_input.subagent_type | IN(\"cloud-security-k8s\",\"terraform-security\")) then {systemMessage:\"\\(.tool_input.subagent_type) summoned\"} else empty end'"
+          }
+        ]
+      }
+    ]
+  }
+}

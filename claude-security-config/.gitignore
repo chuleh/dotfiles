@@ -1,0 +1,38 @@
+# Never commit personal or machine-local Claude Code state.
+# This repo ships only the reusable framework (CLAUDE.md, agents/, skills/, commands/, settings.example.json).
+
+# Personal/live settings — colleagues merge settings.example.json into their own
+settings.json
+settings.local.json
+**/.claude/settings.local.json
+
+# Backups
+*.bak
+
+# Session transcripts, memory, and all runtime state (if someone copies ~/.claude wholesale)
+projects/
+agent-memory/
+backups/
+cache/
+daemon*
+debug/
+downloads/
+file-history/
+history.jsonl
+hooks.json
+ide/
+jobs/
+paste-cache/
+plans/
+plugins/
+policy-limits.json
+session-env/
+sessions/
+shell-snapshots/
+stats-cache.json
+tasks/
+telemetry/
+.last-*
+
+# OS
+.DS_Store
