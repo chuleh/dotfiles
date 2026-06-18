@@ -218,7 +218,9 @@ It is name-based, not content-based — it complements, not replaces, a real sec
 │   ├── sec-terraform/SKILL.md
 │   ├── sec-python/SKILL.md
 │   ├── sec-ruby-rails/SKILL.md
-│   └── sec-github-actions/SKILL.md
+│   ├── sec-github-actions/SKILL.md
+│   ├── sec-pre-commit/SKILL.md    # set up commit-time secret/IaC scanning
+│   └── annoy-me/SKILL.md          # /annoy-me — relentless design grilling + ADRs/glossary
 └── commands/
     ├── k8s-audit.md               # /k8s-audit -> cloud-security-k8s
     └── tf-audit.md                # /tf-audit  -> terraform-security

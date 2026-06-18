@@ -85,6 +85,7 @@ Detailed, example-heavy security guidance lives in on-demand skills so it loads 
 - `sec-python` — input validation, dependency scanning, safe subprocess/SQL, crypto, error handling.
 - `sec-ruby-rails` — Ruby on Rails security.
 - `sec-github-actions` — secrets, SHA-pinned actions, OIDC, minimal permissions. `.github/workflows`.
+- `sec-pre-commit` — set up commit-time secret scanning and IaC/code scanners (gitleaks, tfsec/checkov, bandit, hadolint). When the user wants to shift security scanning left.
 
 ---
 
