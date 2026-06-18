@@ -1,6 +1,6 @@
 # Claude Code Security Configuration
 
-A shareable set of Claude Code customizations for cloud-security engineering. It layers four mechanisms — **instructions** (CLAUDE.md), **agents**, **skills**, and **slash commands** — plus a **hook** that announces when a security agent spawns. Once installed, these apply globally across every project.
+A shareable set of Claude Code customizations for cloud-security engineering. It layers four mechanisms — **instructions** (CLAUDE.md), **agents**, **skills**, and **slash commands** — plus **hooks** that announce when a security agent spawns and block dangerous/secret-leaking git commands. Once installed, these apply globally across every project.
 
 The central design idea is **progressive disclosure**: keep the always-loaded footprint small, and load heavier, specialized content only when it is actually relevant. The sections below explain how each piece loads and when.
 
@@ -15,6 +15,7 @@ cp    CLAUDE.md            ~/.claude/CLAUDE.md     # or merge into your existing
 cp -R agents/*            ~/.claude/agents/
 cp -R skills/*            ~/.claude/skills/
 cp    commands/*.md       ~/.claude/commands/
+cp -R hooks/*             ~/.claude/hooks/    # git-guardrails hook script
 ```
 
 Then merge the hook from `settings.example.json` into your own `~/.claude/settings.json` (under `hooks.PreToolUse`) — do not overwrite the whole file, as your settings hold personal permissions. See the hook section below.
@@ -180,14 +181,35 @@ So you see `cloud-security-k8s summoned` or `terraform-security summoned` and no
 
 ---
 
+## 6. The git-guardrails hook — block dangerous commands
+
+A second `PreToolUse` hook, on the `Bash` matcher, runs `hooks/block-dangerous-git.sh` before any Bash command executes. It enforces the version-control rules from `CLAUDE.md` as a hard control instead of prose Claude can overlook. When it blocks, the script exits `2` and writes a `BLOCKED:` reason to stderr, which Claude sees.
+
+Adapted from [mattpocock/skills](https://github.com/mattpocock/skills) `git-guardrails-claude-code`, with two security additions (commit-on-main and secret-file blocks).
+
+What it blocks:
+- **Destructive git ops** — `git push` (incl. `--force`), `reset --hard`, `clean -f`/`-fd`, `branch -D`, `checkout .`, `restore .`.
+- **Commits to `main`/`master`** — checks the current branch on `git commit` and blocks it (your CLAUDE.md forbids working on main/master).
+- **Secret-bearing files** — blocks `git add`/`git commit` of likely secrets matched by filename (`.env` and variants except `.env.example`/`.sample`/`.template`/`.dist`/`.defaults`; `*.pem`/`*.key`/`*.p12`/`*.pfx`/`*.keystore`/`*.jks`; `id_rsa`/`id_dsa`/`id_ecdsa`/`id_ed25519`; `*credentials*`, `client_secret*`, `*service-account*.json`). On `git commit` it also scans the staged file list (`git diff --cached --name-only`), catching secrets staged via `git add .`.
+
+It is name-based, not content-based — it complements, not replaces, a real secret scanner (gitleaks/trufflehog) in pre-commit/CI.
+
+- **Ships in:** `hooks/block-dangerous-git.sh` (copy to `~/.claude/hooks/`) plus the `Bash` matcher in `settings.example.json` (merge into your own `~/.claude/settings.json`).
+- **Customize:** edit `DANGEROUS_PATTERNS` or the `secret_match` regexes in the script.
+- **Test:** `echo '{"tool_input":{"command":"git push"}}' | ~/.claude/hooks/block-dangerous-git.sh` should exit `2`.
+
+---
+
 ## Directory map (this repo)
 
 ```
 .
 ├── CLAUDE.md                      # always-on instructions (lean) -> ~/.claude/CLAUDE.md
 ├── README.md                      # this file
-├── settings.example.json         # summoned hook to merge into ~/.claude/settings.json
+├── settings.example.json         # summoned + git-guardrails hooks to merge into ~/.claude/settings.json
 ├── .gitignore                    # excludes all personal/runtime state
+├── hooks/
+│   └── block-dangerous-git.sh    # PreToolUse(Bash) guardrail -> ~/.claude/hooks/
 ├── agents/
 │   ├── cloud-security-k8s.md      # K8s/container agent  (model: inherit)
 │   └── terraform-security.md      # Terraform agent      (model: inherit)
@@ -215,5 +237,7 @@ Everything here installs under `~/.claude/`. Personal files (`settings.json`, `s
 **Rename/remove a security agent:** update the `IN(...)` allowlist in `settings.example.json` and your own `~/.claude/settings.json`, plus any matching slash command.
 
 **Change the always-on rules:** edit `CLAUDE.md`. Keep it lean — push verbose, stack-specific detail into a skill instead.
+
+**Tune the git guardrails:** edit `hooks/block-dangerous-git.sh` — add/remove entries in `DANGEROUS_PATTERNS`, or adjust the `secret_match` regexes for your secret-file naming. Re-test with the one-liner in the git-guardrails hook section.
 
 **Verify a change:** configuration is read at session start, so changes apply in a **fresh session** (or after `/clear`). To confirm a hook fires, temporarily prefix its command with a sentinel write (e.g. `tee -a /tmp/x.log | …`), trigger it, inspect the file, then revert.
