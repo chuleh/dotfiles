@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Annoy Me
 
-Interview the user relentlessly about every aspect of this plan until you reach a shared understanding, and record the durable decisions as you go. Ported from `grill-with-docs` (mattpocock/skills); renamed and kept self-contained.
+Interview the user relentlessly about every aspect of this plan until you reach a shared understanding, and record the durable decisions as you go.
 
 ## The interview
 

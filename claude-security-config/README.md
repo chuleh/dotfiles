@@ -185,7 +185,6 @@ So you see `cloud-security-k8s summoned` or `terraform-security summoned` and no
 
 A second `PreToolUse` hook, on the `Bash` matcher, runs `hooks/block-dangerous-git.sh` before any Bash command executes. It enforces the version-control rules from `CLAUDE.md` as a hard control instead of prose Claude can overlook. When it blocks, the script exits `2` and writes a `BLOCKED:` reason to stderr, which Claude sees.
 
-Adapted from [mattpocock/skills](https://github.com/mattpocock/skills) `git-guardrails-claude-code`, with two security additions (commit-on-main and secret-file blocks).
 
 What it blocks:
 - **Destructive git ops** — `git push` (incl. `--force`), `reset --hard`, `clean -f`/`-fd`, `branch -D`, `checkout .`, `restore .`.
