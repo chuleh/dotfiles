@@ -16,9 +16,12 @@ cp -R agents/*            ~/.claude/agents/
 cp -R skills/*            ~/.claude/skills/
 cp    commands/*.md       ~/.claude/commands/
 cp -R hooks/*             ~/.claude/hooks/    # git-guardrails hook script
+cp -R bin/*               ~/.claude/bin/      # commit-and-push wrapper (allowlisted)
 ```
 
-Then merge the hook from `settings.example.json` into your own `~/.claude/settings.json` (under `hooks.PreToolUse`) — do not overwrite the whole file, as your settings hold personal permissions. See the hook section below.
+Then merge `settings.example.json` into your own `~/.claude/settings.json` — do not overwrite the whole file, as your settings hold personal preferences:
+- the two hooks (under `hooks.PreToolUse`) — summon announcer + git guardrail. See the hook section below.
+- the `permissions.allow` entry `Bash(~/.claude/bin/commit-and-push.sh)` — allowlists the `commit-and-push` wrapper so `/commit-and-push` stages, commits, and pushes without per-step prompts.
 
 Changes take effect in a **new** Claude Code session (config is read at startup). Verify with `/k8s-audit` or by listing skills.
 
@@ -100,15 +103,18 @@ model: inherit
 
 A **skill** loads its instructions **into the current conversation** when triggered — same context, same model, same tools. It is reference material injected inline, as opposed to an agent, which runs in isolation. Only each skill's `name` + `description` sit in context until it fires.
 
-The verbose, example-heavy security guidance that used to live in CLAUDE.md was split into five skills:
+The verbose, example-heavy security guidance that used to live in CLAUDE.md lives in on-demand skills:
 
 | Skill | Loads when working on | Notes |
 |---|---|---|
-| `sec-kubernetes` | K8s manifests, Helm charts, kustomize, Pod/RBAC specs | |
-| `sec-terraform` | `.tf` files, modules, backend/provider config | |
+| `sec-kubernetes` | K8s manifests, Helm charts, kustomize, Pod/RBAC specs | CIS/NSA hardening checklist + self-check |
+| `sec-terraform` | `.tf` files, modules, backend/provider config | least-privilege, secure-by-default checklist |
+| `sec-docker` | Dockerfiles, docker-compose, `.dockerignore` | CIS Docker Benchmark hardening |
 | `sec-python` | Python code, `requirements.txt`, subprocess/SQL | |
 | `sec-ruby-rails` | Ruby/Rails code | |
-| `sec-github-actions` | `.github/workflows` YAML | |
+| `sec-github-actions` | `.github/workflows` YAML, actions, CODEOWNERS | supply-chain + least-privilege checklist |
+| `sec-pre-commit` | setting up commit-time secret/IaC scanning | |
+| `commit-and-push` | `/commit-and-push` — stage, commit, push via allowlisted `bin/` wrapper | not security; general workflow |
 
 The `sec-` prefix groups them and avoids name collision with the `terraform-security` and `cloud-security-k8s` *agents* (agents and skills are separate namespaces, but the prefix keeps the human-facing names distinct).
 
@@ -209,16 +215,20 @@ It is name-based, not content-based — it complements, not replaces, a real sec
 ├── .gitignore                    # excludes all personal/runtime state
 ├── hooks/
 │   └── block-dangerous-git.sh    # PreToolUse(Bash) guardrail -> ~/.claude/hooks/
+├── bin/
+│   └── commit-and-push.sh        # allowlisted stage+commit+push wrapper -> ~/.claude/bin/
 ├── agents/
 │   ├── cloud-security-k8s.md      # K8s/container agent  (model: inherit)
 │   └── terraform-security.md      # Terraform agent      (model: inherit)
 ├── skills/
 │   ├── sec-kubernetes/SKILL.md
 │   ├── sec-terraform/SKILL.md
+│   ├── sec-docker/SKILL.md
 │   ├── sec-python/SKILL.md
 │   ├── sec-ruby-rails/SKILL.md
 │   ├── sec-github-actions/SKILL.md
 │   ├── sec-pre-commit/SKILL.md    # set up commit-time secret/IaC scanning
+│   ├── commit-and-push/SKILL.md   # /commit-and-push — uses bin/ wrapper
 │   └── annoy-me/SKILL.md          # /annoy-me — relentless design grilling + ADRs/glossary
 └── commands/
     ├── k8s-audit.md               # /k8s-audit -> cloud-security-k8s

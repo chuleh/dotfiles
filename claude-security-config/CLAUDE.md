@@ -82,6 +82,7 @@ Detailed, example-heavy security guidance lives in on-demand skills so it loads 
 
 - `sec-kubernetes` — Pod Security Standards, SecurityContext, RBAC, secrets, resource limits. K8s manifests, Helm charts, kustomize.
 - `sec-terraform` — remote state, module security, variable validation, provider pinning, sensitive outputs. `.tf` files.
+- `sec-docker` — non-root, least-privilege, pinned base images, CIS Docker Benchmark. Dockerfiles, docker-compose.
 - `sec-python` — input validation, dependency scanning, safe subprocess/SQL, crypto, error handling.
 - `sec-ruby-rails` — Ruby on Rails security.
 - `sec-github-actions` — secrets, SHA-pinned actions, OIDC, minimal permissions. `.github/workflows`.

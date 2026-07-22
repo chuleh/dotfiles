@@ -1,4 +1,9 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(~/.claude/bin/commit-and-push.sh)"
+    ]
+  },
   "hooks": {
     "PreToolUse": [
       {

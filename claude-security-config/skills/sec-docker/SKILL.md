@@ -1,5 +1,5 @@
 ---
-name: docker-hardening
+name: sec-docker
 description: Use whenever creating, editing, or reviewing Dockerfiles, docker-compose.yml/yaml, .dockerignore, or any Docker-related build/runtime configuration. Enforces least-privilege and industry security best practices (CIS Docker Benchmark, NIST, OWASP container guidance). Trigger on file patterns Dockerfile*, *.dockerfile, docker-compose*.yml, docker-compose*.yaml, compose.yml, compose.yaml.
 ---
 
