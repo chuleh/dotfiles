@@ -8,16 +8,13 @@ The central design idea is **progressive disclosure**: keep the always-loaded fo
 
 ## Installation
 
-Copy the framework into your personal Claude Code config directory (`~/.claude/`):
+Run the installer, which copies everything into your personal Claude Code config directory (`~/.claude/`):
 
 ```sh
-cp    CLAUDE.md            ~/.claude/CLAUDE.md     # or merge into your existing one
-cp -R agents/*            ~/.claude/agents/
-cp -R skills/*            ~/.claude/skills/
-cp    commands/*.md       ~/.claude/commands/
-cp -R hooks/*             ~/.claude/hooks/    # git-guardrails hook script
-cp -R bin/*               ~/.claude/bin/      # commit-and-push wrapper (allowlisted)
+./install.sh
 ```
+
+It copies `agents/`, `commands/*.md`, `hooks/`, and `bin/`, and installs skills **flat** into `~/.claude/skills/<name>/` regardless of how they're grouped in the repo (`skills/security/`, `skills/engineering/`). Each skill is replaced cleanly on re-run. It skips `CLAUDE.md` if you already have one (merge it yourself) and never touches `settings.json`. Override the target with `CLAUDE_HOME=/path ./install.sh`.
 
 Then merge `settings.example.json` into your own `~/.claude/settings.json` — do not overwrite the whole file, as your settings hold personal preferences:
 - the two hooks (under `hooks.PreToolUse`) — summon announcer + git guardrail. See the hook section below.
