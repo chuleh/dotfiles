@@ -61,7 +61,6 @@ Two things follow from this:
 Because it is always loaded, it competes for context budget. It is deliberately kept lean — anything verbose or stack-specific was moved into skills.
 
 - **File:** `CLAUDE.md`
-- **Backup:** `CLAUDE.md.bak` (the original, pre-split version; restore with `cp CLAUDE.md.bak CLAUDE.md`)
 - **Scope note:** Project-level `CLAUDE.md` files (in a repo's root or `.claude/`) stack *on top* of this global file when you work in that repo. More-specific instructions generally win on conflict.
 
 ---
@@ -124,7 +123,7 @@ The `sec-` prefix groups them and avoids name collision with the `terraform-secu
 
 **Why guardrails stayed in CLAUDE.md, not skills:** skill loading is heuristic. Hard security rules ("never run as root") must always be in context, so they remain in always-on CLAUDE.md. Skills carry the *how-to detail*, which is fine to load only when relevant. This split is the deliberate "hybrid" design.
 
-- **Files:** `skills/sec-*/SKILL.md`
+- **Files:** `skills/security/sec-*/SKILL.md`
 
 ### Agents vs. skills — the one-line distinction
 
@@ -221,15 +220,16 @@ It is name-based, not content-based — it complements, not replaces, a real sec
 │   ├── cloud-security-k8s.md      # K8s/container agent  (model: inherit)
 │   └── terraform-security.md      # Terraform agent      (model: inherit)
 ├── skills/
-│   ├── sec-kubernetes/SKILL.md
-│   ├── sec-terraform/SKILL.md
-│   ├── sec-docker/SKILL.md
-│   ├── sec-python/SKILL.md
-│   ├── sec-ruby-rails/SKILL.md
-│   ├── sec-github-actions/SKILL.md
-│   ├── sec-pre-commit/SKILL.md    # set up commit-time secret/IaC scanning
-│   ├── commit-and-push/SKILL.md   # /commit-and-push — uses bin/ wrapper
-│   └── annoy-me/SKILL.md          # /annoy-me — relentless design grilling + ADRs/glossary
+│   ├── security/
+│   │   ├── sec-kubernetes/SKILL.md
+│   │   ├── sec-terraform/SKILL.md
+│   │   ├── sec-docker/SKILL.md
+│   │   ├── sec-python/SKILL.md
+│   │   ├── sec-ruby-rails/SKILL.md
+│   │   ├── sec-github-actions/SKILL.md
+│   │   └── sec-pre-commit/SKILL.md    # set up commit-time secret/IaC scanning
+│   ├── engineering/                   # non-security workflow skills
+│   └── commit-and-push/SKILL.md       # /commit-and-push — uses bin/ wrapper
 └── commands/
     ├── k8s-audit.md               # /k8s-audit -> cloud-security-k8s
     └── tf-audit.md                # /tf-audit  -> terraform-security
