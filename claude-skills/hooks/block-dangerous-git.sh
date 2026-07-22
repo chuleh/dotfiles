@@ -8,21 +8,13 @@ block() {
   exit 2
 }
 
-DANGEROUS_PATTERNS=(
-  "git push"
-  "git reset --hard"
-  "git clean -fd"
-  "git clean -f"
-  "git branch -D"
-  "git checkout \."
-  "git restore \."
-  "push --force"
-  "reset --hard"
-)
+runs() {
+  echo "$COMMAND" | grep -qE "(^|[;&|(])[[:space:]]*$1"
+}
 
-for pattern in "${DANGEROUS_PATTERNS[@]}"; do
-  if echo "$COMMAND" | grep -qE "$pattern"; then
-    block "'$COMMAND' matches dangerous pattern '$pattern'."
+for sub in "git +push" "git +reset +--hard" "git +clean +-f" "git +branch +-D" "git +checkout +\." "git +restore +\."; do
+  if runs "$sub"; then
+    block "'$COMMAND' matches dangerous git operation '$sub'."
   fi
 done
 
@@ -31,10 +23,6 @@ secret_match() {
   echo "$1" | grep -iE '(^|[/ ])\.env[^ ]*' | grep -qvE '\.env\.(example|sample|template|dist|defaults)' && return 0
   return 1
 }
-
-if echo "$COMMAND" | grep -qE "git +(add|commit)" && secret_match "$COMMAND"; then
-  block "'$COMMAND' looks like it stages or commits a secret-bearing file (.env, key/cert, credentials)."
-fi
 
 git_target_dir() {
   local dir
@@ -45,7 +33,11 @@ git_target_dir() {
   echo "."
 }
 
-if echo "$COMMAND" | grep -qE "git +commit"; then
+if runs "git +(add|commit)" && secret_match "$COMMAND"; then
+  block "'$COMMAND' looks like it stages or commits a secret-bearing file (.env, key/cert, credentials)."
+fi
+
+if runs "git +commit"; then
   GITDIR=$(git_target_dir "$COMMAND")
   BRANCH=$(git -C "$GITDIR" symbolic-ref --short HEAD 2>/dev/null)
   if [ "$BRANCH" = "main" ] || [ "$BRANCH" = "master" ]; then
