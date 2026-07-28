@@ -8,16 +8,13 @@ The central design idea is **progressive disclosure**: keep the always-loaded fo
 
 ## Installation
 
-Copy the framework into your personal Claude Code config directory (`~/.claude/`):
+Run the installer, which copies everything into your personal Claude Code config directory (`~/.claude/`):
 
 ```sh
-cp    CLAUDE.md            ~/.claude/CLAUDE.md     # or merge into your existing one
-cp -R agents/*            ~/.claude/agents/
-cp -R skills/*            ~/.claude/skills/
-cp    commands/*.md       ~/.claude/commands/
-cp -R hooks/*             ~/.claude/hooks/    # git-guardrails hook script
-cp -R bin/*               ~/.claude/bin/      # commit-and-push wrapper (allowlisted)
+./install.sh
 ```
+
+It copies `agents/`, `commands/*.md`, `hooks/`, and `bin/`, and installs skills **flat** into `~/.claude/skills/<name>/` regardless of how they're grouped in the repo (`skills/security/`, `skills/engineering/`). Each skill is replaced cleanly on re-run. It skips `CLAUDE.md` if you already have one (merge it yourself) and never touches `settings.json`. Override the target with `CLAUDE_HOME=/path ./install.sh`.
 
 Then merge `settings.example.json` into your own `~/.claude/settings.json` — do not overwrite the whole file, as your settings hold personal preferences:
 - the two hooks (under `hooks.PreToolUse`) — summon announcer + git guardrail. See the hook section below.
@@ -61,7 +58,6 @@ Two things follow from this:
 Because it is always loaded, it competes for context budget. It is deliberately kept lean — anything verbose or stack-specific was moved into skills.
 
 - **File:** `CLAUDE.md`
-- **Backup:** `CLAUDE.md.bak` (the original, pre-split version; restore with `cp CLAUDE.md.bak CLAUDE.md`)
 - **Scope note:** Project-level `CLAUDE.md` files (in a repo's root or `.claude/`) stack *on top* of this global file when you work in that repo. More-specific instructions generally win on conflict.
 
 ---
@@ -124,7 +120,7 @@ The `sec-` prefix groups them and avoids name collision with the `terraform-secu
 
 **Why guardrails stayed in CLAUDE.md, not skills:** skill loading is heuristic. Hard security rules ("never run as root") must always be in context, so they remain in always-on CLAUDE.md. Skills carry the *how-to detail*, which is fine to load only when relevant. This split is the deliberate "hybrid" design.
 
-- **Files:** `skills/sec-*/SKILL.md`
+- **Files:** `skills/security/sec-*/SKILL.md`
 
 ### Agents vs. skills — the one-line distinction
 
@@ -221,15 +217,16 @@ It is name-based, not content-based — it complements, not replaces, a real sec
 │   ├── cloud-security-k8s.md      # K8s/container agent  (model: inherit)
 │   └── terraform-security.md      # Terraform agent      (model: inherit)
 ├── skills/
-│   ├── sec-kubernetes/SKILL.md
-│   ├── sec-terraform/SKILL.md
-│   ├── sec-docker/SKILL.md
-│   ├── sec-python/SKILL.md
-│   ├── sec-ruby-rails/SKILL.md
-│   ├── sec-github-actions/SKILL.md
-│   ├── sec-pre-commit/SKILL.md    # set up commit-time secret/IaC scanning
-│   ├── commit-and-push/SKILL.md   # /commit-and-push — uses bin/ wrapper
-│   └── annoy-me/SKILL.md          # /annoy-me — relentless design grilling + ADRs/glossary
+│   ├── security/
+│   │   ├── sec-kubernetes/SKILL.md
+│   │   ├── sec-terraform/SKILL.md
+│   │   ├── sec-docker/SKILL.md
+│   │   ├── sec-python/SKILL.md
+│   │   ├── sec-ruby-rails/SKILL.md
+│   │   ├── sec-github-actions/SKILL.md
+│   │   └── sec-pre-commit/SKILL.md    # set up commit-time secret/IaC scanning
+│   ├── engineering/                   # non-security workflow skills
+│   └── commit-and-push/SKILL.md       # /commit-and-push — uses bin/ wrapper
 └── commands/
     ├── k8s-audit.md               # /k8s-audit -> cloud-security-k8s
     └── tf-audit.md                # /tf-audit  -> terraform-security
